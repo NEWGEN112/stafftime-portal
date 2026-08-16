@@ -1,11 +1,11 @@
 <?php
-// StaffTime - Admin Dashboard (Starting Point)
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+requireAdmin();   // ← This line protects the page
 
-// Temporary demo mode (remove later when real login is ready)
-$school_name = "Glory Secondary School";
-$school_code = "ST-2026-0001";
-$admin_name  = "Admin";
+$user = currentUser();
+$school_name = $user['school_name'] ?? 'My School';
+$school_code = $_SESSION['school_code'] ?? 'N/A';
+$admin_name  = $user['full_name'] ?? 'Admin';
 
 // Demo stats (will come from database later)
 $present = 42;
@@ -76,7 +76,7 @@ $leave   = 2;
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h3 class="mb-0"><?php echo htmlspecialchars($school_name); ?></h3>
-            <small class="text-muted">School Code: <?php echo $school_code; ?> • Welcome, <?php echo $admin_name; ?></small>
+            <small class="text-muted">School Code: <?php echo htmlspecialchars($school_code); ?> • Welcome, <?php echo htmlspecialchars($admin_name); ?></small>
           </div>
           <span class="badge bg-primary">Today: <?php echo date('D, d M Y'); ?></span>
         </div>
