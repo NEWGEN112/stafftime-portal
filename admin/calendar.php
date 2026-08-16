@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+requireAdmin();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +17,6 @@ session_start();
       <a href="index.php" class="btn btn-outline-primary btn-sm">← Back to Dashboard</a>
     </div>
 
-    <!-- Create Session -->
     <div class="card mb-4">
       <div class="card-header bg-white">
         <strong>Create New Session</strong>
@@ -42,7 +42,6 @@ session_start();
       </div>
     </div>
 
-    <!-- Set Terms -->
     <div class="card">
       <div class="card-header bg-white">
         <strong>Set Terms for Current Session</strong>
@@ -51,8 +50,8 @@ session_start();
         <div class="mb-3">
           <label class="form-label">First Term</label>
           <div class="row g-2">
-            <div class="col"><input type="date" class="form-control" placeholder="Start"></div>
-            <div class="col"><input type="date" class="form-control" placeholder="End"></div>
+            <div class="col"><input type="date" class="form-control"></div>
+            <div class="col"><input type="date" class="form-control"></div>
           </div>
         </div>
         <div class="mb-3">
