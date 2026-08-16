@@ -181,7 +181,8 @@ try {
     </form>
 
     <div class="d-grid gap-2 mt-4">
-      <a href="../public/logout.php" class="btn btn-outline-secondary">Logout</a>
+  <a href="leave.php" class="btn btn-outline-primary">Apply for Leave</a>
+  <a href="../public/logout.php" class="btn btn-outline-secondary">Logout</a>
     </div>
 
   </div>
