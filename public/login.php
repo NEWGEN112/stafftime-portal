@@ -47,10 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['school_code'] = $user['school_code'];
 
                 if ($user['role'] === 'admin') {
-                    header('Location: ../admin/index.php');
-                } else {
-                    // For now send staff also to admin (we will change later)
-                    header('Location: ../admin/index.php');
+    header('Location: ../admin/index.php');
+} else {
+    header('Location: ../staff/index.php');
                 }
                 exit;
             } else {
