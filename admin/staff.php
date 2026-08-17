@@ -125,7 +125,7 @@ try {
                     <td>
                       <a href="staff-edit.php?id=<?php echo $staff['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
 
-<form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to do this?');">
+<a href="staff-edit.php?id=<?php echo $staff['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
   <input type="hidden" name="staff_id" value="<?php echo $staff['id']; ?>">
 
   <?php if ($staff['is_active']): ?>
