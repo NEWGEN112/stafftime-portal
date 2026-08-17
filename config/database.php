@@ -5,7 +5,7 @@ define('DB_HOST', 'aws-1-eu-west-3.pooler.supabase.com');
 define('DB_PORT', '5432');
 define('DB_NAME', 'postgres');
 define('DB_USER', 'postgres.yhpvuvzcnpxwdjyuhhcj');
-define('DB_PASS', 'YOUR_PASSWORD_HERE');   // ← Replace this with your real password
+define('DB_PASS', 'Hpffellowship001');   // ← Replace this with your real password
 define('DB_CHARSET', 'utf8');
 
 function getDB() {
