@@ -4,7 +4,7 @@
 define('DB_HOST', 'sql201.infinityfree.com');
 define('DB_NAME', 'if0_42672226_stafftime');
 define('DB_USER', 'if0_42672226');
-define('DB_PASS', 'YOUR_VPANEL_PASSWORD');   // ← Put your InfinityFree account password here
+define('DB_PASS', 'Adebiyi112');   // ← Put your InfinityFree account password here
 define('DB_CHARSET', 'utf8mb4');
 
 function getDB() {
