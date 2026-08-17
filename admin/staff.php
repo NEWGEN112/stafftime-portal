@@ -123,17 +123,19 @@ try {
                       <?php endif; ?>
                     </td>
                     <td>
-                      <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to do this?');">
-                        <input type="hidden" name="staff_id" value="<?php echo $staff['id']; ?>">
+                      <a href="staff-edit.php?id=<?php echo $staff['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
 
-                        <?php if ($staff['is_active']): ?>
-                          <button type="submit" name="action" value="deactivate" class="btn btn-sm btn-warning">Deactivate</button>
-                        <?php else: ?>
-                          <button type="submit" name="action" value="activate" class="btn btn-sm btn-success">Activate</button>
-                        <?php endif; ?>
+<form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to do this?');">
+  <input type="hidden" name="staff_id" value="<?php echo $staff['id']; ?>">
 
-                        <button type="submit" name="action" value="delete" class="btn btn-sm btn-danger">Delete</button>
-                      </form>
+  <?php if ($staff['is_active']): ?>
+    <button type="submit" name="action" value="deactivate" class="btn btn-sm btn-warning">Deactivate</button>
+  <?php else: ?>
+    <button type="submit" name="action" value="activate" class="btn btn-sm btn-success">Activate</button>
+  <?php endif; ?>
+
+  <button type="submit" name="action" value="delete" class="btn btn-sm btn-danger">Delete</button>
+</form>
                     </td>
                   </tr>
                 <?php endforeach; ?>
