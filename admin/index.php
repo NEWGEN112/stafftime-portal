@@ -89,7 +89,6 @@ try {
 </head>
 <body>
 
-  <!-- Top Navbar (Mobile Friendly) -->
   <nav class="navbar navbar-dark bg-primary sticky-top">
     <div class="container-fluid">
       <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
@@ -100,7 +99,6 @@ try {
     </div>
   </nav>
 
-  <!-- Offcanvas Sidebar -->
   <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
     <div class="offcanvas-header bg-primary text-white">
       <h5 class="offcanvas-title">StaffTime Admin</h5>
@@ -119,7 +117,6 @@ try {
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="container py-4">
 
     <div class="mb-4">
@@ -130,7 +127,6 @@ try {
       </small>
     </div>
 
-    <!-- Stats -->
     <div class="row g-3 mb-4">
       <div class="col-6">
         <div class="card stat-card">
@@ -166,7 +162,6 @@ try {
       </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="card mb-4">
       <div class="card-header bg-white">
         <strong>Quick Actions</strong>
@@ -181,7 +176,6 @@ try {
       </div>
     </div>
 
-    <!-- Today's Attendance -->
     <div class="card">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <strong>Today's Attendance</strong>
