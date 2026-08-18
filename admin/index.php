@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auto_attendance.php';
 requireAdmin();
 
 $user = currentUser();
@@ -17,6 +18,9 @@ $today_list = [];
 
 try {
     $pdo = getDB();
+
+    // Run automatic attendance (after closing time + 30 mins)
+    runAutoAttendance($pdo, $school_id);
 
     $stmt = $pdo->prepare("
         SELECT status, COUNT(*) as total 
