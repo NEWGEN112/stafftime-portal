@@ -14,10 +14,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone           = trim($_POST['phone'] ?? '');
     $email           = trim($_POST['email'] ?? '');
     $department      = trim($_POST['department'] ?? '');
-    $role            = $_POST['role'] ?? 'Teacher';
+    $job_title       = trim($_POST['job_title'] ?? '');
     $password        = $_POST['password'] ?? '';
 
-    // Basic validation
+    // Combine department + job title for storage (both free text)
+    $dept_save = $department;
+    if ($job_title !== '') {
+        $dept_save = $department !== '' ? ($department . ' / ' . $job_title) : $job_title;
+    }
+
     if (empty($full_name) || empty($phone) || empty($password)) {
         $error = 'Full Name, Phone Number and Password are required.';
     } elseif (strlen($password) < 6) {
@@ -26,13 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo = getDB();
 
-            // Check if phone already exists in this school
             $check = $pdo->prepare("SELECT id FROM users WHERE phone = ? AND school_id = ?");
             $check->execute([$phone, $school_id]);
             if ($check->fetch()) {
                 $error = 'A staff member with this phone number already exists in your school.';
             } else {
-                // Check email if provided
                 if (!empty($email)) {
                     $checkEmail = $pdo->prepare("SELECT id FROM users WHERE email = ? AND school_id = ?");
                     $checkEmail->execute([$email, $school_id]);
@@ -57,18 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $phone,
                         $hashed,
                         $staff_id_number ?: null,
-                        $department ?: null
+                        $dept_save ?: null
                     ]);
 
                     $success = "Staff <strong>" . htmlspecialchars($full_name) . "</strong> added successfully!";
-                    
-                    // Clear form values after success
-                    $_POST = [];
                 }
             }
         } catch (Exception $e) {
-            $error = 'Failed to add staff. Please check your database connection.';
-            // For debugging you can temporarily show: $error = $e->getMessage();
+            $error = 'Failed to add staff. Please try again.';
         }
     }
 }
@@ -85,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Add New Staff</h3>
-      <a href="index.php" class="btn btn-outline-primary btn-sm">← Back to Dashboard</a>
+      <a href="staff.php" class="btn btn-outline-primary btn-sm">← Back to Staff List</a>
     </div>
 
     <?php if ($success): ?>
@@ -104,11 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="card">
       <div class="card-body">
-        <form method="POST" action="">
+        <form method="POST">
           <div class="mb-3">
             <label class="form-label">Full Name *</label>
             <input type="text" name="full_name" class="form-control" required 
-                   placeholder="e.g. Adebayo Johnson"
+                   placeholder="e.g. Adeola Johnson"
                    value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
           </div>
 
@@ -136,18 +135,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="mb-3">
             <label class="form-label">Department / Subject</label>
             <input type="text" name="department" class="form-control" 
-                   placeholder="e.g. Mathematics"
+                   placeholder="e.g. Mathematics, Science, Admin Office"
                    value="<?php echo htmlspecialchars($_POST['department'] ?? ''); ?>">
+            <div class="form-text">Type any department name your school uses</div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Role</label>
-            <select name="role" class="form-select">
-              <option value="Teacher" <?php echo (($_POST['role'] ?? '') === 'Teacher') ? 'selected' : ''; ?>>Teacher</option>
-              <option value="Admin Staff" <?php echo (($_POST['role'] ?? '') === 'Admin Staff') ? 'selected' : ''; ?>>Admin Staff</option>
-              <option value="Security" <?php echo (($_POST['role'] ?? '') === 'Security') ? 'selected' : ''; ?>>Security</option>
-              <option value="Other" <?php echo (($_POST['role'] ?? '') === 'Other') ? 'selected' : ''; ?>>Other</option>
-            </select>
+            <label class="form-label">Job Title / Position</label>
+            <input type="text" name="job_title" class="form-control" 
+                   placeholder="e.g. Teacher, Bursar, Lab Attendant, Vice Principal"
+                   value="<?php echo htmlspecialchars($_POST['job_title'] ?? ''); ?>">
+            <div class="form-text">Type any job title — not limited to a list</div>
           </div>
 
           <div class="mb-3">
