@@ -1,11 +1,14 @@
 <?php
-session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 
-// If already logged in, redirect
+// If already logged in, redirect correctly
 if (isLoggedIn()) {
-    header('Location: ../admin/index.php');
+    if (isAdmin()) {
+        header('Location: ../admin/index.php');
+    } else {
+        header('Location: ../staff/index.php');
+    }
     exit;
 }
 
@@ -13,67 +16,69 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $school_name = trim($_POST['school_name'] ?? '');
-    $address     = trim($_POST['address'] ?? '');
-    $state       = trim($_POST['state'] ?? '');
-    $phone       = trim($_POST['phone'] ?? '');
-    $email       = trim($_POST['email'] ?? '');
-    $password    = $_POST['password'] ?? '';
-    $confirm     = $_POST['confirm_password'] ?? '';
-
-    // Validation
-    if (empty($school_name) || empty($phone) || empty($email) || empty($password)) {
-        $error = 'Please fill all required fields.';
-    } elseif ($password !== $confirm) {
-        $error = 'Passwords do not match.';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password must be at least 6 characters.';
+    // CSRF check
+    $csrf = $_POST['csrf_token'] ?? '';
+    if (!validateCsrfToken($csrf)) {
+        $error = 'Invalid request. Please try again.';
     } else {
-        try {
-            $pdo = getDB();
+        $school_name = trim($_POST['school_name'] ?? '');
+        $address     = trim($_POST['address'] ?? '');
+        $state       = trim($_POST['state'] ?? '');
+        $phone       = trim($_POST['phone'] ?? '');
+        $email       = trim($_POST['email'] ?? '');
+        $password    = $_POST['password'] ?? '';
+        $confirm     = $_POST['confirm_password'] ?? '';
 
-            // Check if email already exists
-            $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-            $check->execute([$email]);
-            if ($check->fetch()) {
-                $error = 'This email is already registered.';
-            } else {
-                // Generate unique school code
-                $school_code = 'ST-' . date('Y') . '-' . strtoupper(substr(uniqid(), -4));
+        if (empty($school_name) || empty($phone) || empty($email) || empty($password)) {
+            $error = 'Please fill all required fields.';
+        } elseif ($password !== $confirm) {
+            $error = 'Passwords do not match.';
+        } elseif (strlen($password) < 6) {
+            $error = 'Password must be at least 6 characters.';
+        } else {
+            try {
+                $pdo = getDB();
 
-                // Start transaction
-                $pdo->beginTransaction();
+                $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+                $check->execute([$email]);
+                if ($check->fetch()) {
+                    $error = 'This email is already registered.';
+                } else {
+                    $school_code = 'ST-' . date('Y') . '-' . strtoupper(substr(uniqid(), -4));
 
-                // 1. Create school
-                $stmt = $pdo->prepare("
-                    INSERT INTO schools (school_name, school_code, address, state, phone, email)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ");
-                $stmt->execute([$school_name, $school_code, $address, $state, $phone, $email]);
-                $school_id = $pdo->lastInsertId();
+                    $pdo->beginTransaction();
 
-                // 2. Create Admin user
-                $hashed = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("
-                    INSERT INTO users (school_id, full_name, email, phone, password, role, is_active)
-                    VALUES (?, ?, ?, ?, ?, 'admin', 1)
-                ");
-                $stmt->execute([$school_id, $school_name . ' Admin', $email, $phone, $hashed]);
+                    $stmt = $pdo->prepare("
+                        INSERT INTO schools (school_name, school_code, address, state, phone, email)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([$school_name, $school_code, $address, $state, $phone, $email]);
+                    $school_id = $pdo->lastInsertId();
 
-                $pdo->commit();
+                    $hashed = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare("
+                        INSERT INTO users (school_id, full_name, email, phone, password, role, is_active)
+                        VALUES (?, ?, ?, ?, ?, 'admin', 1)
+                    ");
+                    $stmt->execute([$school_id, $school_name . ' Admin', $email, $phone, $hashed]);
 
-                $success = "School registered successfully!<br>
-                            School Code: <strong>$school_code</strong><br>
-                            You can now <a href='login.php'>Login</a>.";
+                    $pdo->commit();
+
+                    $success = "School registered successfully!<br>
+                                School Code: <strong>" . htmlspecialchars($school_code) . "</strong><br>
+                                You can now <a href='login.php'>Login</a>.";
+                }
+            } catch (Exception $e) {
+                if (isset($pdo) && $pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                $error = 'Registration failed. Please try again.';
             }
-        } catch (Exception $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            $error = 'Registration failed. Please try again.';
         }
     }
 }
+
+$csrf_token = generateCsrfToken();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="card-body p-4">
         <div class="text-center mb-4">
           <h3 class="text-primary">StaffTime</h3>
-          <p class="text-muted">Register Your School</p>
+          <p class="text-muted">Register your school</p>
         </div>
 
         <?php if ($error): ?>
@@ -110,6 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php else: ?>
 
         <form method="POST" action="">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+
           <div class="mb-3">
             <label class="form-label">School Name *</label>
             <input type="text" name="school_name" class="form-control" required 
