@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 
-// If already logged in, redirect correctly
 if (isLoggedIn()) {
     if (function_exists('isSuperAdmin') && isSuperAdmin()) {
         header('Location: ../owner/index.php');
@@ -41,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo = getDB();
 
-                // Validate registration code
                 $codeStmt = $pdo->prepare("
                     SELECT * FROM registration_codes
                     WHERE code = ? AND is_used = 0
@@ -59,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $error = 'This email is already registered.';
                     } else {
                         $school_code = 'ST-' . date('Y') . '-' . strtoupper(substr(uniqid(), -4));
-
                         $pdo->beginTransaction();
 
                         $stmt = $pdo->prepare("
@@ -76,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ");
                         $stmt->execute([$school_id, $school_name . ' Admin', $email, $phone, $hashed]);
 
-                        // Mark registration code as used
                         $pdo->prepare("
                             UPDATE registration_codes
                             SET is_used = 1, used_by_school_id = ?, used_at = NOW()
